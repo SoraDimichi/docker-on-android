@@ -3,14 +3,14 @@
 ## Prerequisites
 
 - Unlocked bootloader
-- OrangeFox recovery flashed
 - ADB and fastboot on PC
 
 ## 1. Flash ROM + Magisk
 
-1. Boot OrangeFox: Volume Up + Power
+1. Boot into recovery: Volume Up + Power
 2. Wipe: Format Data ("yes") + Advanced Wipe (Dalvik, Cache, System, Vendor)
-3. `adb sideload EvolutionX-16.0-XXXXXXXX-raphael-XX.X.X-Official.zip`
+3. ADB sideload EvolutionX (recovery included with the ROM):
+   `adb sideload EvolutionX-16.0-XXXXXXXX-raphael-XX.X.X-Official.zip`
 4. Rename Magisk APK to .zip, sideload: `adb sideload Magisk-vXX.X.zip`
 5. Reboot
 

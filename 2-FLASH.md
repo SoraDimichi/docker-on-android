@@ -4,7 +4,7 @@
 
 - Unlocked bootloader
 - [ADB and fastboot](https://developer.android.com/tools/releases/platform-tools) on PC
-- [Google USB Driver](https://developer.android.com/studio/run/win-usb) (Windows only)
+- USB drivers (Windows only): [Google USB Driver](https://developer.android.com/studio/run/win-usb) for ADB, [Xiaomi USB Driver](https://developer.android.com/studio/run/oem-usb#Drivers) for fastboot
 
 ## Flash VoltageOS
 

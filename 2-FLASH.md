@@ -4,6 +4,7 @@
 
 - Unlocked bootloader
 - [ADB and fastboot](https://developer.android.com/tools/releases/platform-tools) on PC
+- [Google USB Driver](https://developer.android.com/studio/run/win-usb) (Windows only)
 
 ## Flash VoltageOS
 

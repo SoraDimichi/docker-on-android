@@ -1,0 +1,4 @@
+kernel/
+toolchain/
+boot_unpacked/
+boot-docker.img

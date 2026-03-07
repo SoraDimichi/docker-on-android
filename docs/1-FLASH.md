@@ -5,23 +5,31 @@
 - Unlocked bootloader
 - ADB and fastboot on PC
 
-## Flash EvolutionX + Magisk
+## Flash VoltageOS
 
 1. Boot into recovery: Volume Up + Power
 2. Wipe: Format Data ("yes") + Advanced Wipe (Dalvik, Cache, System, Vendor)
-3. ADB sideload EvolutionX (recovery included with the ROM):
-   `adb sideload EvolutionX-16.0-XXXXXXXX-raphael-XX.X.X-Official.zip`
-4. Rename Magisk APK to .zip, sideload: `adb sideload Magisk-vXX.X.zip`
-5. Reboot
+3. ADB sideload VoltageOS:
+   `adb sideload VoltageOS-5.6-XXXXXXXX-raphael-vanilla.zip`
+4. Reboot to bootloader: `adb reboot bootloader`
 
-## Flash Antigravity Kernel
+## Flash Custom Kernel
 
-Stock kernel is missing `CONFIG_CGROUP_DEVICE` — Docker refuses to start without it.
+Stock kernel is missing `CONFIG_CGROUP_DEVICE` — Docker refuses to start without it. Our custom kernel also includes [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) for root.
 
-Download from [releases](https://github.com/xiziphus/kernel_xiaomi_raphael_antigravity/releases).
+See [Build Kernel](4-KERNEL.md) to build from source, or flash a pre-built `boot-docker.img`:
 
 ```bash
-adb reboot bootloader
-fastboot flash boot boot-raphael-docker-v1.0.img
+fastboot flash boot boot-docker.img
 fastboot reboot
 ```
+
+## Install KernelSU-Next Manager
+
+After booting, install the manager APK to control root permissions:
+
+```bash
+adb install KernelSU_Next_v1.0.8_12701-release.apk
+```
+
+Download from [KernelSU-Next releases](https://github.com/KernelSU-Next/KernelSU-Next/releases/tag/v1.0.8).

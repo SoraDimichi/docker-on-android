@@ -1,4 +1,4 @@
-# 4. Docker Setup
+# 3. Docker Setup
 
 ## Quick Start
 
@@ -33,7 +33,7 @@ All scripts: `su -c bash ~/script.sh`
 
 | Error | Fix |
 |-------|-----|
-| `Devices cgroup isn't mounted` | Need Antigravity kernel, or cgroups not mounted |
+| `Devices cgroup isn't mounted` | Need custom kernel with `CONFIG_CGROUP_DEVICE=y`, or cgroups not mounted |
 | `remount /, flags: 0x84000` | Must use ext4 loop device, not /data directly |
 | `cpuset/docker/cpuset.cpus: no such file` | Don't mount cpuset — Android's `noprefix` is cached by kernel, Docker works without it |
 | `-p` port mapping not working | Use `--network=host` instead |

@@ -11,7 +11,7 @@ Install FOSS replacements **before** disabling Google apps:
 | Replace | With | Install from |
 |---------|------|-------------|
 | Gboard | [HeliBoard](https://github.com/Helium314/HeliBoard) | F-Droid |
-| Pixel Launcher | [KISS Launcher](https://kisslauncher.com/) | F-Droid |
+| Pixel Launcher | [Olauncher](https://f-droid.org/en/packages/app.olauncher/) | F-Droid |
 | Chrome | [Fennec](https://f-droid.org/packages/org.mozilla.fennec_fdroid/) | F-Droid |
 | Google Messages | [QKSMS](https://f-droid.org/packages/com.moez.QKSMS/) or Signal | F-Droid |
 | Google Photos | [Simple Gallery](https://f-droid.org/packages/com.simplemobiletools.gallery.pro/) | F-Droid |
@@ -23,7 +23,7 @@ Install FOSS replacements **before** disabling Google apps:
 
 After installing, set defaults:
 1. **Keyboard**: Settings → System → Languages & input → set HeliBoard as default
-2. **Launcher**: Press Home → select KISS → set "Always"
+2. **Launcher**: Press Home → select Olauncher → set "Always"
 
 ## Debloat
 

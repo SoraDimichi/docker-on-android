@@ -21,7 +21,11 @@ See [SETUP.md](SETUP.md).
 ## Quick Start
 
 ```bash
-su -c bash /data/data/com.termux/files/home/start-docker.sh
+# One-time setup (creates image, installs Debian + Docker)
+su -c bash ~/setup.sh
+
+# Start Docker (after every reboot)
+su -c bash ~/start-docker.sh
 ```
 
 Enter chroot and run nginx:
@@ -32,3 +36,9 @@ docker run -d --network=host nginx:alpine
 ```
 
 Access from PC: `curl http://<phone-ip>:80`
+
+Uninstall (safe unmount + delete):
+
+```bash
+su -c bash ~/uninstall.sh
+```

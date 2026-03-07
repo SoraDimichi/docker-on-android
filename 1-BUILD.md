@@ -32,14 +32,3 @@ The script downloads [Android Clang r547379](https://android.googlesource.com/pl
 | VoltageOS ramdisk | Extracted from [VoltageOS](https://voltage-os.com/) 5.6 boot.img | [Apache 2.0](https://source.android.com/docs/setup/about/licenses) |
 
 Inspired by the [Antigravity kernel](https://github.com/xiziphus/kernel_xiaomi_raphael_antigravity) which ships Docker cgroup flags out of the box.
-
-## What didn't work
-
-| Approach | Problem |
-|----------|---------|
-| System clang (18/19) | Missing `+mlgo` — `regalloc-enable-advisor=release` fails |
-| SOVIET-ANDROID kernel | Different kernel base (BeastRoms) — bootloops on VoltageOS |
-| Antigravity pre-built boot.img | Built for EvolutionX ramdisk — bootloops on VoltageOS |
-| KernelSU (latest) | Dropped non-GKI support (kernel 4.14 is non-GKI) |
-| KernelSU-Next v3.1.0 | Uses `TWA_RESUME` API not available in kernel 4.14 |
-| `make Image.gz-dtb` | dtbo build fails (DTC version mismatch) — build `Image.gz` separately |

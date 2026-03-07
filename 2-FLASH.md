@@ -6,6 +6,8 @@
 - [ADB and fastboot](https://developer.android.com/tools/releases/platform-tools) on PC
 - USB drivers for ADB and fastboot
 
+Download [VoltageOS](https://voltage-os.com/) for raphael.
+
 ## Flash Recovery
 
 Flash the VoltageOS recovery (included in the VoltageOS zip):
@@ -30,10 +32,10 @@ Reboot into recovery: Volume Up + Power
 Install the manager APK before rebooting — **Apply update** → **Apply from ADB**:
 
 ```bash
-adb sideload KernelSU_Next_v1.0.8_12701-release.apk
+adb sideload KernelSU_Next_v1.1.1_12851-release.apk
 ```
 
-Download from [KernelSU-Next releases](https://github.com/KernelSU-Next/KernelSU-Next/releases/tag/v1.0.8).
+Download from [KernelSU-Next releases](https://github.com/KernelSU-Next/KernelSU-Next/releases/tag/v1.1.1).
 
 ## Flash Custom Kernel
 

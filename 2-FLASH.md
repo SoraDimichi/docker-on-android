@@ -1,4 +1,4 @@
-# 1. Flash ROM + Kernel
+# 2. Flash ROM + Kernel
 
 ## Prerequisites
 
@@ -17,7 +17,7 @@
 
 Stock kernel is missing `CONFIG_CGROUP_DEVICE` — Docker refuses to start without it. Our custom kernel also includes [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) for root.
 
-Download `boot-docker.img` from [Releases](https://github.com/SoraDimichi/docker-on-android/releases), or [build from source](4-KERNEL.md):
+[Build `boot-docker.img` from source](1-BUILD.md), then flash it:
 
 ```bash
 fastboot flash boot boot-docker.img

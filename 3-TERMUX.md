@@ -1,4 +1,4 @@
-# 2. Termux + SSH
+# 3. Termux + SSH
 
 ## Install
 

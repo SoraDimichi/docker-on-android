@@ -1,10 +1,6 @@
 # Docker on Android (Mi 9T Pro)
 
-> **WARNING: This guide involves unlocking the bootloader, flashing custom ROMs, custom kernels, and rooting your device. Any of these steps can brick your phone. You are flashing a kernel built by a random guy on GitHub. There are no guarantees. Proceed at your own risk.**
-
-## Download
-
-Pre-built `boot-docker.img` is available on the [Releases](https://github.com/SoraDimichi/docker-on-android/releases) page. To build from source, see [Build Kernel](docs/4-KERNEL.md).
+> **WARNING: This guide involves unlocking the bootloader, flashing custom ROMs, custom kernels, and rooting your device. Any of these steps can brick your phone. There are no guarantees. Proceed at your own risk.**
 
 Running Docker on a rooted Android phone using a custom kernel + Debian chroot.
 
@@ -14,16 +10,16 @@ Running Docker on a rooted Android phone using a custom kernel + Debian chroot.
 
 | # | Guide | What |
 |---|-------|------|
-| 1 | [Flash ROM + Kernel](docs/1-FLASH.md) | VoltageOS, custom kernel, KernelSU-Next |
-| 2 | [Termux + SSH](docs/2-TERMUX.md) | SSH access, auto-start sshd on boot |
-| 3 | [Docker](docs/3-DOCKER.md) | Install, run, and manage Docker containers |
-| 4 | [Build Kernel](docs/4-KERNEL.md) | Build VoltageOS kernel with Docker cgroup support |
+| 1 | [Build Kernel](1-BUILD.md) | Build VoltageOS kernel with Docker cgroup support + KernelSU-Next |
+| 2 | [Flash ROM + Kernel](2-FLASH.md) | Flash VoltageOS and the custom kernel |
+| 3 | [Termux + SSH](3-TERMUX.md) | SSH access, auto-start sshd on boot |
+| 4 | [Docker](4-DOCKER.md) | Install, run, and manage Docker containers |
 
 ## Stack
 
 | Component | Why |
 |-----------|-----|
-| Custom VoltageOS kernel ([build guide](docs/4-KERNEL.md)) | Stock kernel missing `CONFIG_CGROUP_DEVICE` — Docker refuses to start |
+| Custom VoltageOS kernel ([build guide](1-BUILD.md)) | Stock kernel missing `CONFIG_CGROUP_DEVICE` — Docker refuses to start |
 | [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) v1.0.8 | Kernel-level root — no Magisk needed |
 | Debian chroot on ext4 loop device | Android blocks static binaries (PIE) and `/data` has `nosuid,nodev` |
 | `--iptables=false` + `--network=host` | Android iptables conflicts with Docker — bridge networking won't work |

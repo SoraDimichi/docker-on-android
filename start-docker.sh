@@ -34,7 +34,7 @@ echo "nameserver 8.8.8.8" > $DEBIAN/etc/resolv.conf
 chmod 1777 $DEBIAN/tmp
 
 chroot $DEBIAN /usr/bin/env PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
-    bash -c "dockerd --iptables=false --storage-driver=vfs &>/tmp/dockerd.log &"
+    bash -c "GODEBUG=netdns=cgo dockerd --iptables=false --storage-driver=vfs &>/tmp/dockerd.log &"
 
 sleep 8
 

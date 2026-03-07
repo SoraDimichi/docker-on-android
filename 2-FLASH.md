@@ -27,17 +27,15 @@ Reboot into recovery: Volume Up + Power
 
 ## Install KernelSU-Next Manager
 
-Install the manager APK before rebooting — same way as the ROM:
+Install the manager APK before rebooting — **Apply update** → **Apply from ADB**:
 
-1. **Apply update** → **Apply from ADB**
-2. Sideload the APK:
-   ```bash
-   adb sideload KernelSU_Next_v1.0.8_12701-release.apk
-   ```
+```bash
+adb sideload KernelSU_Next_v1.0.8_12701-release.apk
+```
 
 Download from [KernelSU-Next releases](https://github.com/KernelSU-Next/KernelSU-Next/releases/tag/v1.0.8).
 
-You can also install it later via USB debugging: `adb install KernelSU_Next_v1.0.8_12701-release.apk`
+Or install later via USB debugging: `adb install KernelSU_Next_v1.0.8_12701-release.apk`
 
 ## Flash Custom Kernel
 

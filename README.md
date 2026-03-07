@@ -2,6 +2,8 @@
 
 Running Docker on a rooted Android phone using a custom kernel + Debian chroot.
 
+> Tested on Xiaomi Mi 9T Pro (Redmi K20 Pro / `raphael`), [EvolutionX](https://evolution-x.org/) 16.0, [Antigravity kernel](https://github.com/xiziphus/kernel_xiaomi_raphael_antigravity) with Docker cgroup support.
+
 ## Device
 
 - **Phone**: Xiaomi Mi 9T Pro / Redmi K20 Pro (codename: `raphael`)
@@ -11,8 +13,8 @@ Running Docker on a rooted Android phone using a custom kernel + Debian chroot.
 
 ## Stack
 
-- **ROM**: EvolutionX 16.0 (Android 16)
-- **Kernel**: [Antigravity](https://github.com/xiziphus/kernel_xiaomi_raphael_antigravity) v1.0.0 (4.14.353-openela-SOVIET-STAR) — enables Docker cgroup support
+- **ROM**: [EvolutionX](https://evolution-x.org/) 16.0 (Android 16)
+- **Kernel**: [Antigravity](https://github.com/xiziphus/kernel_xiaomi_raphael_antigravity) v1.0.0 (4.14.353-openela-SOVIET-STAR) — enables Docker cgroup support (kernel with Docker support)
 - **Root**: Magisk (flashed via OrangeFox recovery sideload)
 - **Terminal**: Termux with SSH (port 8022)
 - **Container**: Debian 13 (trixie) chroot on ext4 loop device

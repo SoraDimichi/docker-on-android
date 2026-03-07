@@ -150,4 +150,5 @@ chroot /data/local/dockerroot /usr/bin/env \
 | `remount /, flags: 0x84000: invalid argument` | Debian must be on ext4 loop device, not on /data directly |
 | `cpuset/docker/cpuset.cpus: no such file` | Mount cpuset WITHOUT `noprefix` flag |
 | `unexpected e_type: 2` | Static binary blocked by Android PIE enforcement — use chroot |
+| `-p` port mapping not working | `--iptables=false` disables Docker networking — use `--network=host` instead |
 | Phone bootloop after disabling Google packages | Don't disable system overlays, launcher, webview, packageinstaller |

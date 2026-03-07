@@ -1,4 +1,6 @@
 kernel/
 toolchain/
-boot_unpacked/
+kernel-build/kernel/
+kernel-build/toolchain/
+kernel-build/mkbootimg/
 boot-docker.img

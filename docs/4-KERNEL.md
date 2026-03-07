@@ -1,8 +1,10 @@
-# 5. Building Kernel with Docker Support (VoltageOS)
+# 4. Building Kernel with Docker Support (VoltageOS)
 
 VoltageOS stock kernel is missing `CONFIG_CGROUP_DEVICE` and `CONFIG_CGROUP_PIDS` — Docker refuses to start without them.
 
 This guide builds the [VoltageOS kernel](https://github.com/VoltageOS-Devices/kernel_xiaomi_raphael) with Docker cgroup support enabled, inspired by the [Antigravity kernel](https://github.com/xiziphus/kernel_xiaomi_raphael_antigravity) which ships these flags out of the box.
+
+> **Automated build:** `cd kernel-build && bash build.sh` handles the entire process below (downloads toolchain, clones kernel, integrates KernelSU-Next, builds, and packs `boot-docker.img`).
 
 ## Toolchain
 
@@ -10,6 +12,7 @@ The VoltageOS kernel requires [Android Clang r547379](https://android.googlesour
 
 ```bash
 # Download Android Clang (~1 GB)
+cd kernel-build
 mkdir -p toolchain && cd toolchain
 wget "https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz" -O clang.tar.gz
 mkdir -p clang && tar -xzf clang.tar.gz -C clang && rm clang.tar.gz
@@ -27,7 +30,7 @@ sudo apt-get install -y gcc-aarch64-linux-gnu binutils-aarch64-linux-gnu \
 ## Build
 
 ```bash
-# Clone kernel source
+# Clone kernel source (inside kernel-build/)
 git clone --depth 1 -b 16 \
   https://github.com/VoltageOS-Devices/kernel_xiaomi_raphael.git kernel
 cd kernel
@@ -36,7 +39,7 @@ cd kernel
 export PATH=$(pwd)/../toolchain/clang/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:$PATH
 make O=out ARCH=arm64 raphael_defconfig
 
-# Merge Docker config fragment
+# Merge Docker config fragment (docker.config is in kernel-build/)
 ARCH=arm64 scripts/kconfig/merge_config.sh -m -O out out/.config ../docker.config
 
 # Resolve dependencies
@@ -60,7 +63,7 @@ Output: `out/arch/arm64/boot/Image.gz-dtb`
 
 ## Docker config fragment
 
-The `docker.config` file enables all kernel flags Docker needs. It's merged on top of `raphael_defconfig` via `merge_config.sh`:
+The `kernel-build/docker.config` file enables all kernel flags Docker needs. It's merged on top of `raphael_defconfig` via `merge_config.sh`:
 
 ```
 CONFIG_NAMESPACES=y
@@ -96,17 +99,15 @@ CONFIG_POSIX_MQUEUE=y
 The kernel image alone isn't flashable. Pack it with the VoltageOS ramdisk:
 
 ```bash
-# Clone mkbootimg
+# Clone mkbootimg (inside kernel-build/)
 git clone --depth 1 https://android.googlesource.com/platform/system/tools/mkbootimg
 
-# Extract ramdisk from VoltageOS boot.img
-# (use any boot image unpacker — the ramdisk is at a fixed offset)
-# You need: ramdisk.cpio.gz from your stock VoltageOS boot.img
+# The VoltageOS ramdisk is included in kernel-build/boot_unpacked/
 
 # Repack with new kernel
 python3 mkbootimg/mkbootimg.py \
   --kernel out/arch/arm64/boot/Image.gz-dtb \
-  --ramdisk boot_unpacked/ramdisk.cpio.gz \
+  --ramdisk ../boot_unpacked/ramdisk.cpio.gz \
   --cmdline "console=ttyMSM0,115200n8 androidboot.hardware=qcom androidboot.console=ttyMSM0 androidboot.memcg=1 lpm_levels.sleep_disabled=1 msm_rtb.filter=0x237 service_locator.enable=1 swiotlb=2048 loop.max_part=7 androidboot.usbcontroller=a600000.dwc3 buildvariant=user" \
   --base 0x00000000 \
   --kernel_offset 0x00008000 \

@@ -17,7 +17,7 @@
 
 Stock kernel is missing `CONFIG_CGROUP_DEVICE` — Docker refuses to start without it. Our custom kernel also includes [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) for root.
 
-See [Build Kernel](4-KERNEL.md) to build from source, or flash a pre-built `boot-docker.img`:
+Download `boot-docker.img` from [Releases](https://github.com/SoraDimichi/docker-on-android/releases), or [build from source](4-KERNEL.md):
 
 ```bash
 fastboot flash boot boot-docker.img

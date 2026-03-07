@@ -2,6 +2,10 @@
 
 > **WARNING: This guide involves unlocking the bootloader, flashing custom ROMs, custom kernels, and rooting your device. Any of these steps can brick your phone. You are flashing a kernel built by a random guy on GitHub. There are no guarantees. Proceed at your own risk.**
 
+## Download
+
+Pre-built `boot-docker.img` is available on the [Releases](https://github.com/SoraDimichi/docker-on-android/releases) page. To build from source, see [Build Kernel](docs/4-KERNEL.md).
+
 Running Docker on a rooted Android phone using a custom kernel + Debian chroot.
 
 > Tested on Xiaomi Mi 9T Pro (Redmi K20 Pro / `raphael`), [VoltageOS](https://voltage-os.com/) 5.6 (Android 16), custom kernel with Docker cgroup support.

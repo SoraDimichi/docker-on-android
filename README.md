@@ -26,31 +26,11 @@ Running Docker on a rooted Android phone using a custom kernel + Debian chroot.
 | `--storage-driver=vfs` | overlayfs remount fails on Android |
 | Skip cpuset cgroup | Android mounts cpuset with `noprefix` (kernel caches it) — Docker works without it |
 
-## Quick Start
+## Setup
 
-```bash
-su -c bash ~/setup.sh        # one-time
-su -c bash ~/start-docker.sh  # after every reboot
-```
+Follow the guides in order:
 
-Enter chroot and run nginx:
-
-```bash
-su -c "chroot /data/local/dockerroot /usr/bin/env PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin bash"
-docker run -d --network=host nginx:alpine
-```
-
-Access from PC: `curl http://<phone-ip>:80`
-
-## Scripts
-
-| Script | What it does | When to use |
-|--------|-------------|-------------|
-| `setup.sh` | Create ext4 image, install Debian + Docker | First time only |
-| `start-docker.sh` | Mount everything + start dockerd | After reboot |
-| `stop-docker.sh` | Graceful shutdown + unmount + detach loop | Full teardown |
-| `pause-docker.sh` | Stop all containers + stop dockerd (mounts stay) | Save battery, free resources |
-| `resume-docker.sh` | Start dockerd + restart all containers | Wake up where you left off |
-| `uninstall.sh` | Stop, unmount, delete image + chroot | Remove everything |
-
-All scripts: `su -c bash ~/script.sh`
+1. **[Build Kernel](1-BUILD.md)** — build `boot-docker.img` on a Linux PC (~30 min, ~10 GB disk)
+2. **[Flash ROM + Kernel](2-FLASH.md)** — flash VoltageOS + custom kernel + install KernelSU-Next Manager
+3. **[Termux + SSH](3-TERMUX.md)** — install Termux, set up SSH access from PC
+4. **[Docker](4-DOCKER.md)** — install Debian chroot + Docker, run containers

@@ -3,11 +3,25 @@
 
 DEBIAN=/data/local/dockerroot
 
-echo "Stopping Docker..."
-chroot $DEBIAN /usr/bin/env PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
-    bash -c "kill \$(cat /var/run/docker.pid 2>/dev/null) 2>/dev/null; killall containerd 2>/dev/null" 2>/dev/null
+run_chroot() {
+    chroot $DEBIAN /usr/bin/env PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin "$@"
+}
 
-sleep 3
+echo "Stopping containers..."
+run_chroot bash -c 'docker stop $(docker ps -q) 2>/dev/null' 2>/dev/null
+
+echo "Stopping dockerd..."
+PID=$(run_chroot cat /var/run/docker.pid 2>/dev/null)
+if [ -n "$PID" ]; then
+    run_chroot kill "$PID" 2>/dev/null
+    for i in $(seq 1 15); do
+        run_chroot kill -0 "$PID" 2>/dev/null || break
+        sleep 1
+    done
+fi
+run_chroot killall containerd 2>/dev/null
+killall containerd-shim-runc-v2 2>/dev/null
+sleep 1
 
 echo "Unmounting..."
 # Lazy unmount everything under dockerroot (handles duplicates and busy mounts)
@@ -18,7 +32,9 @@ while mount | grep -q "on $DEBIAN"; do
     sleep 1
 done
 
-LOOPDEV=$(losetup -a | grep docker.img | cut -d: -f1)
-losetup -d $LOOPDEV 2>/dev/null
+# Detach all loop devices for docker.img (multiple can accumulate)
+losetup -a | grep docker.img | cut -d: -f1 | while read dev; do
+    losetup -d "$dev" 2>/dev/null
+done
 
 echo "Done."

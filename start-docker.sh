@@ -33,16 +33,24 @@ mount -t cgroup -o memory cgroup $DEBIAN/sys/fs/cgroup/memory 2>/dev/null
 echo "nameserver 8.8.8.8" > $DEBIAN/etc/resolv.conf
 chmod 1777 $DEBIAN/tmp
 
-chroot $DEBIAN /usr/bin/env PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
-    bash -c "GODEBUG=netdns=cgo dockerd --iptables=false --storage-driver=vfs &>/tmp/dockerd.log &"
+run_chroot() {
+    chroot $DEBIAN /usr/bin/env PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin "$@"
+}
 
-sleep 8
+run_chroot bash -c "GODEBUG=netdns=cgo dockerd --iptables=false --storage-driver=vfs &>/tmp/dockerd.log &"
 
-chroot $DEBIAN /usr/bin/env PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
-    docker info 2>&1 | head -3
+echo -n "Waiting for dockerd"
+for i in $(seq 1 30); do
+    if run_chroot docker info &>/dev/null; then
+        echo " ready (${i}s)"
+        break
+    fi
+    echo -n "."
+    sleep 1
+done
 
 echo ""
-echo "Ready. Enter chroot:"
+echo "Enter chroot:"
 echo "  su -c \"chroot /data/local/dockerroot /usr/bin/env PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin bash\""
 echo ""
 echo "Run nginx:"

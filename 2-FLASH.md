@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - Unlocked bootloader
-- ADB and fastboot on PC
+- [ADB and fastboot](https://developer.android.com/tools/releases/platform-tools) on PC
 
 ## Flash VoltageOS
 

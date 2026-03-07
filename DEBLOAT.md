@@ -144,6 +144,18 @@ for pkg in \
 done
 ```
 
+### Optional: other bloat
+
+```bash
+for pkg in \
+  com.wstxda.viper4android \
+  com.caf.fmradio \
+  com.chiller3.bcr \
+; do
+  pm uninstall -k --user 0 $pkg
+done
+```
+
 ## Results
 
 | | Before | After |

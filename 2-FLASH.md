@@ -35,8 +35,6 @@ adb sideload KernelSU_Next_v1.0.8_12701-release.apk
 
 Download from [KernelSU-Next releases](https://github.com/KernelSU-Next/KernelSU-Next/releases/tag/v1.0.8).
 
-Or install later via USB debugging: `adb install KernelSU_Next_v1.0.8_12701-release.apk`
-
 ## Flash Custom Kernel
 
 Stock kernel is missing `CONFIG_CGROUP_DEVICE` — Docker refuses to start without it. The custom kernel also includes [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) for root.

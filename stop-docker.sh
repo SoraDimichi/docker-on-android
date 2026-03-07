@@ -8,7 +8,7 @@ chroot $DEBIAN /usr/bin/env PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/b
 
 sleep 3
 
-for m in sys/fs/cgroup/{devices,cpu,blkio,freezer,pids,memory,cpuset} sys/fs/cgroup dev/pts dev proc sys; do
+for m in sys/fs/cgroup/{devices,cpu,blkio,freezer,pids,memory} sys/fs/cgroup dev/pts dev proc sys; do
     umount $DEBIAN/$m 2>/dev/null
 done
 

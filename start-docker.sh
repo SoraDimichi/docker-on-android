@@ -26,8 +26,9 @@ for cg in devices cpu blkio freezer pids; do
 done
 mkdir -p $DEBIAN/sys/fs/cgroup/memory
 mount -t cgroup -o memory cgroup $DEBIAN/sys/fs/cgroup/memory 2>/dev/null
-mkdir -p $DEBIAN/sys/fs/cgroup/cpuset
-mount -t cgroup -o cpuset cgroup $DEBIAN/sys/fs/cgroup/cpuset 2>/dev/null
+# cpuset intentionally skipped: Android mounts it with noprefix (files named
+# "cpus" instead of "cpuset.cpus"), and the kernel caches this for all later
+# mounts. Docker expects prefixed names and fails. Docker works fine without it.
 
 echo "nameserver 8.8.8.8" > $DEBIAN/etc/resolv.conf
 chmod 1777 $DEBIAN/tmp

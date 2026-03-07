@@ -12,7 +12,7 @@ Running Docker on a rooted Android phone using a custom kernel + Debian chroot.
 | Debian chroot on ext4 loop device | Android blocks static binaries (PIE) and `/data` has `nosuid,nodev` |
 | `--iptables=false` + `--network=host` | Android iptables conflicts with Docker — bridge networking won't work |
 | `--storage-driver=vfs` | overlayfs remount fails on Android |
-| `mount -t cgroup -o cpuset` (no `noprefix`) | Docker expects `cpuset.cpus`, not `cpus` |
+| Skip cpuset cgroup | Android mounts cpuset with `noprefix` (kernel caches it) — Docker works without it |
 
 ## Setup
 

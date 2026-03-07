@@ -1,12 +1,26 @@
-# Debloating EvolutionX (GApps)
+# 3. Debloating EvolutionX (GApps)
 
-Disable Google bloat to free ~1 GB RAM for Docker containers.
+Remove Google bloat to free ~1 GB RAM.
 
 > Tested on EvolutionX 16.0 (`raphael`). All commands are reversible.
 
+## Do NOT remove
+
+These will bootloop or break the system:
+
+- `com.android.systemui` — screen goes black
+- `com.android.settings` / `com.google.android.settings.intelligence`
+- `com.android.phone` / `org.codeaurora.ims` — telephony
+- `com.google.android.webview` — apps crash
+- `com.google.android.permissioncontroller`
+- `com.android.providers.*` — system databases
+- `com.google.android.setupwizard` / `com.google.android.pixel.setupwizard`
+- `com.google.android.gsf` — Google Services Framework
+- `com.google.android.ext.services`
+
 ## Prerequisites
 
-Install FOSS replacements **before** disabling Google apps:
+Install FOSS replacements **before** removing Google apps:
 
 | Replace | With | Install from |
 |---------|------|-------------|
@@ -25,7 +39,7 @@ After installing, set defaults:
 1. **Keyboard**: Settings → System → Languages & input → set HeliBoard as default
 2. **Launcher**: Press Home → select Olauncher → set "Always"
 
-## Debloat
+## Remove
 
 All commands use `pm uninstall -k --user 0` — removes for current user but keeps system data. Reversible. Run from Termux or SSH:
 
@@ -179,17 +193,3 @@ pm list packages -u | sed 's/package://' | while read pkg; do
   pm list packages | grep -q "$pkg" || pm install-existing --user 0 "$pkg"
 done
 ```
-
-## Do NOT disable
-
-These will bootloop or break the system:
-
-- `com.android.systemui` — screen goes black
-- `com.android.settings` / `com.google.android.settings.intelligence`
-- `com.android.phone` / `org.codeaurora.ims` — telephony
-- `com.google.android.webview` — apps crash
-- `com.google.android.permissioncontroller`
-- `com.android.providers.*` — system databases
-- `com.google.android.setupwizard` / `com.google.android.pixel.setupwizard`
-- `com.google.android.gsf` — Google Services Framework
-- `com.google.android.ext.services`

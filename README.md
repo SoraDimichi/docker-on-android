@@ -4,6 +4,15 @@ Running Docker on a rooted Android phone using a custom kernel + Debian chroot.
 
 > Tested on Xiaomi Mi 9T Pro (Redmi K20 Pro / `raphael`), [EvolutionX](https://evolution-x.org/) 16.0, [Antigravity kernel](https://github.com/xiziphus/kernel_xiaomi_raphael_antigravity) with Docker cgroup support.
 
+## Guides
+
+| # | Guide | What |
+|---|-------|------|
+| 1 | [Flash ROM + Kernel](docs/1-FLASH.md) | EvolutionX, Magisk, Antigravity kernel |
+| 2 | [Termux + SSH](docs/2-TERMUX.md) | SSH access, auto-start sshd on boot |
+| 3 | [Debloat](docs/3-DEBLOAT.md) | Remove Google bloat, FOSS replacements (~1 GB RAM saved) |
+| 4 | [Docker](docs/4-DOCKER.md) | Install, run, and manage Docker containers |
+
 ## Stack
 
 | Component | Why |
@@ -13,23 +22,6 @@ Running Docker on a rooted Android phone using a custom kernel + Debian chroot.
 | `--iptables=false` + `--network=host` | Android iptables conflicts with Docker — bridge networking won't work |
 | `--storage-driver=vfs` | overlayfs remount fails on Android |
 | Skip cpuset cgroup | Android mounts cpuset with `noprefix` (kernel caches it) — Docker works without it |
-
-## Scripts
-
-| Script | What it does | When to use |
-|--------|-------------|-------------|
-| `setup.sh` | Create ext4 image, install Debian + Docker | First time only |
-| `start-docker.sh` | Mount everything + start dockerd | After reboot |
-| `stop-docker.sh` | Graceful shutdown + unmount + detach loop | Full teardown |
-| `pause-docker.sh` | Stop all containers + stop dockerd (mounts stay) | Save battery, free resources |
-| `resume-docker.sh` | Start dockerd + restart all containers | Wake up where you left off |
-| `uninstall.sh` | Stop, unmount, delete image + chroot | Remove everything |
-
-All scripts: `su -c bash ~/script.sh`
-
-## Setup
-
-See [SETUP.md](SETUP.md).
 
 ## Quick Start
 
@@ -46,3 +38,16 @@ docker run -d --network=host nginx:alpine
 ```
 
 Access from PC: `curl http://<phone-ip>:80`
+
+## Scripts
+
+| Script | What it does | When to use |
+|--------|-------------|-------------|
+| `setup.sh` | Create ext4 image, install Debian + Docker | First time only |
+| `start-docker.sh` | Mount everything + start dockerd | After reboot |
+| `stop-docker.sh` | Graceful shutdown + unmount + detach loop | Full teardown |
+| `pause-docker.sh` | Stop all containers + stop dockerd (mounts stay) | Save battery, free resources |
+| `resume-docker.sh` | Start dockerd + restart all containers | Wake up where you left off |
+| `uninstall.sh` | Stop, unmount, delete image + chroot | Remove everything |
+
+All scripts: `su -c bash ~/script.sh`

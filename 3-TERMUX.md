@@ -1,5 +1,9 @@
 # 3. Termux + SSH
 
+## Grant Root Access
+
+Open **KernelSU-Next Manager** → **Superuser** → grant **Termux** root access.
+
 ## Install
 
 Install from F-Droid:
@@ -14,7 +18,15 @@ passwd
 sshd
 ```
 
-Connect from PC: `ssh user@<phone-ip> -p 8022`
+Connect from PC: `ssh <user>@<phone-ip> -p 8022`
+
+## Add SSH Key
+
+Copy your public key to the phone to connect without a password:
+
+```bash
+ssh-copy-id -i ~/.ssh/id_rsa -p 8022 <user>@<phone-ip>
+```
 
 ## Auto-start sshd on boot
 

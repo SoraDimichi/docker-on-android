@@ -27,16 +27,6 @@ Reboot into recovery: Volume Up + Power
    adb sideload VoltageOS-5.6-XXXXXXXX-raphael-vanilla.zip
    ```
 
-## Install KernelSU-Next Manager
-
-Install the manager APK before rebooting — **Apply update** → **Apply from ADB**:
-
-```bash
-adb sideload KernelSU_Next_v1.1.1_12851-release.apk
-```
-
-Download from [KernelSU-Next releases](https://github.com/KernelSU-Next/KernelSU-Next/releases/tag/v1.1.1).
-
 ## Flash Custom Kernel
 
 Stock kernel is missing `CONFIG_CGROUP_DEVICE` — Docker refuses to start without it. The custom kernel also includes [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) for root.
@@ -48,3 +38,13 @@ adb reboot bootloader
 fastboot flash boot boot-docker.img
 fastboot reboot
 ```
+
+## Install KernelSU-Next Manager
+
+After the phone boots, install the manager APK via USB debugging:
+
+```bash
+adb install KernelSU_Next_v1.1.1_12851-release.apk
+```
+
+Download from [KernelSU-Next releases](https://github.com/KernelSU-Next/KernelSU-Next/releases/tag/v1.1.1).

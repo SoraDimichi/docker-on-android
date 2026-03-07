@@ -1,11 +1,23 @@
 # 4. Docker Setup
 
-## Quick Start
+## Copy Scripts to Phone
+
+From your PC, copy the scripts to the phone via SSH:
 
 ```bash
-su -c bash ~/setup.sh        # one-time: creates image, installs Debian + Docker
-su -c bash ~/start-docker.sh  # after every reboot
+scp -P 8022 setup.sh start-docker.sh stop-docker.sh pause-docker.sh resume-docker.sh uninstall.sh <user>@<phone-ip>:~/
 ```
+
+## Quick Start
+
+Open Termux on the phone and run:
+
+```bash
+su -c "PATH=$PREFIX/bin:\$PATH bash $HOME/setup.sh"        # one-time: creates image, installs Debian + Docker
+su -c "PATH=$PREFIX/bin:\$PATH bash $HOME/start-docker.sh"  # after every reboot
+```
+
+> `su` runs as root where `~` is `/`. Use `$HOME` (Termux home) and add `$PREFIX/bin` so root can find Termux tools.
 
 Enter chroot and run nginx:
 
@@ -27,7 +39,7 @@ Access from PC: `curl http://<phone-ip>:80`
 | `resume-docker.sh` | Start dockerd + restart all containers | Wake up where you left off |
 | `uninstall.sh` | Stop, unmount, delete image + chroot | Remove everything |
 
-All scripts: `su -c bash ~/script.sh`
+All scripts: `su -c "PATH=$PREFIX/bin:\$PATH bash $HOME/script.sh"`
 
 ## Troubleshooting
 

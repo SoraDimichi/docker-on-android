@@ -4,3 +4,5 @@ kernel-build/kernel/
 kernel-build/toolchain/
 kernel-build/mkbootimg/
 boot-docker.img
+modules/
+kernel-build/stock-*/

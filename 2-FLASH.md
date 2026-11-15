@@ -24,7 +24,7 @@ Reboot into recovery: Volume Up + Power
 2. Apply update: **Apply update** → **Apply from ADB**
 3. Sideload VoltageOS:
    ```bash
-   adb sideload VoltageOS-5.6-XXXXXXXX-raphael-vanilla.zip
+   adb sideload voltage-6.2-raphael-XXXXXXXX-XXXX-OFFICIAL.zip
    ```
 
 ## Flash Custom Kernel
@@ -36,6 +36,13 @@ Stock kernel is missing `CONFIG_CGROUP_DEVICE` — Docker refuses to start witho
 ```bash
 adb reboot bootloader
 fastboot flash boot boot-docker.img
+fastboot reboot
+```
+
+If the phone does not boot, flash the stock `boot.img` from the VoltageOS zip to get it back. This removes root.
+
+```bash
+fastboot flash boot boot.img
 fastboot reboot
 ```
 

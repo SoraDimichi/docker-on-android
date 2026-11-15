@@ -1,6 +1,7 @@
+Source: voltage-6.2-raphael-20261022-0545-OFFICIAL.zip, boot.img
 Header version: 0
-OS Version: 0
-OS Patch Level: 2026-02
+OS Version: 17.0.0
+OS Patch Level: 2026-10
 Page size: 4096
 Kernel address: 0x00008000
 Ramdisk address: 0x01000000

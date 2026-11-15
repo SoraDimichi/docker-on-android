@@ -4,7 +4,7 @@ Docker runs inside the Kali chroot of [Kali NetHunter](https://www.kali.org/docs
 
 ## Requirements
 
-- The custom kernel from [step 1](01-build-kernel.md), with root from KernelSU-Next ([step 2](02-flash-rom-kernel-root.md)).
+- The custom kernel from [step 1](01-build-kernel.md), with Magisk root ([step 2](02-flash-rom-kernel-root.md)).
 - Kali NetHunter with its Kali chroot ([step 3](03-nethunter.md)). The Lite edition works too.
 - `$ADB` on the PC ([step 2](02-flash-rom-kernel-root.md#requirements)), or another root shell on the phone.
 
@@ -22,6 +22,12 @@ $ADB shell su -c 'mkdir -p /data/local/docker-on-android && cd /data/local/tmp &
 ```bash
 $ADB shell su -c 'sh /data/local/docker-on-android/setup.sh'          # once: installs docker.io and docker-cli in Kali
 $ADB shell su -c 'sh /data/local/docker-on-android/start-docker.sh'   # after every reboot
+```
+
+`dockerd` does not start at boot. From a root shell in Kali (for example `ssh kali`), this starts it too:
+
+```bash
+chroot /proc/1/root /system/bin/sh /data/local/docker-on-android/start-docker.sh
 ```
 
 Then use `docker` in the Kali chroot, for example over [SSH into Kali](04-ssh.md) (`ssh kali`) or in the NetHunter terminal:

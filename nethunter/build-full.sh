@@ -4,7 +4,7 @@
 # and the full Kali rootfs. Read docs/03-nethunter.md first.
 #
 # Usage:  nethunter/build-full.sh
-# Output: $WORK_DIR/out/nethunter-<release>-raphael-vos-ksu-seventeen-kalifs_full.zip
+# Output: $WORK_DIR/out/nethunter-<release>-raphael-vos-seventeen-kalifs_full.zip
 # Folders: WORK_DIR=<path> (default: nethunter-build/ in this repo, ignored by git)
 # and DOA_DIR=<path> (default: this repo, which has kernel-build/ and boot-docker.img).
 set -euo pipefail
@@ -13,12 +13,12 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 
 # --- Pinned versions (change these to update) ---
 INSTALLER_REPO="https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-installer.git"
-# main on 2026-10-31: tag 2026.3 + 5 commits (KernelSU fixes: no rootfs copy left in the module folder)
+# main on 2026-10-31: tag 2026.3 + 5 commits (module install fixes: no rootfs copy left in the module folder)
 INSTALLER_COMMIT="aa1dca61435cc8a7e9f4053234c731855329e69b"
 RELEASE="2026.3-5-gaa1dca6"   # git describe --tags of INSTALLER_COMMIT, used in the zip name
 KERNELS_REPO="https://gitlab.com/kalilinux/nethunter/build-scripts/kali-nethunter-kernels.git"
 KERNELS_COMMIT="303ad0f036f942baf29d19e649fe6579da9699fb"   # only devices.yml is checked out
-KERNEL_ID="raphael-vos-ksu"
+KERNEL_ID="raphael-vos"
 # Android 17. build.py has flags up to --sixteen only. Without a flag it takes the
 # Android version from the only kernels/<version>/<KERNEL_ID> folder.
 ANDROID="seventeen"
@@ -107,7 +107,7 @@ git -C "$KERNELS" checkout -q -- devices.yml
 cat "$HERE/$KERNEL_ID.yml" >> "$KERNELS/devices.yml"
 
 echo "=== Copying kernel and modules to kernels/$ANDROID/$KERNEL_ID ==="
-# modules/system_root/lib/modules/<release>: the KernelSU module install copies
+# modules/system_root/lib/modules/<release>: the Magisk module install copies
 # modules/*/lib to /system/lib in the module (update-magisk: push_modules)
 rm -rf "${KERNELS:?}/$ANDROID"
 mkdir -p "$DEVICE_DIR/modules/system_root/lib/modules"

@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 # Download the APKs of this setup into apks/ (ignored by git).
 # F-Droid apps: the version that F-Droid suggests, checked against the SHA-256 in the F-Droid index.
-# KernelSU-Next manager: GitHub release v1.1.1, because the manager must match the kernel.
+# Magisk: GitHub release. It gives root: it patches boot-docker.img (docs/02).
 # Total Commander is not on F-Droid: get it from https://www.ghisler.com/android.htm
 set -euo pipefail
 
 cd "$(dirname "$0")"
 OUT=apks
-FDROID_APPS=(com.termux com.termux.boot com.aistra.hail mattecarra.accapp org.fdroid.fdroid)
-KSU_TAG=v1.1.1
-KSU_APK=KernelSU_Next_v1.1.1_12851-release.apk
+FDROID_APPS=(mattecarra.accapp org.fdroid.fdroid)
+MAGISK_TAG=v31.1
+MAGISK_APK=Magisk-v31.1.apk
 
 for cmd in curl jq sha256sum; do
     command -v "$cmd" >/dev/null || { echo "ERROR: $cmd is required"; exit 1; }
@@ -39,11 +39,11 @@ for pkg in "${FDROID_APPS[@]}"; do
 done
 rm -f "$INDEX"
 
-echo "=== KernelSU-Next manager $KSU_TAG (GitHub) ==="
-want=$(curl -fsSL "https://api.github.com/repos/KernelSU-Next/KernelSU-Next/releases/tags/$KSU_TAG" \
-    | jq -r --arg n "$KSU_APK" '.assets[] | select(.name == $n) | .digest // empty' | sed 's/^sha256://')
-curl -fsSL "https://github.com/KernelSU-Next/KernelSU-Next/releases/download/$KSU_TAG/$KSU_APK" -o "$OUT/$KSU_APK"
-check_sha256 "$KSU_APK" "$want"
+echo "=== Magisk $MAGISK_TAG (GitHub) ==="
+want=$(curl -fsSL "https://api.github.com/repos/topjohnwu/Magisk/releases/tags/$MAGISK_TAG" \
+    | jq -r --arg n "$MAGISK_APK" '.assets[] | select(.name == $n) | .digest // empty' | sed 's/^sha256://')
+curl -fsSL "https://github.com/topjohnwu/Magisk/releases/download/$MAGISK_TAG/$MAGISK_APK" -o "$OUT/$MAGISK_APK"
+check_sha256 "$MAGISK_APK" "$want"
 
 (cd "$OUT" && sha256sum ./*.apk > SHA256SUMS)
 echo "=== Done: $OUT/ ==="

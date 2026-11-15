@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Build VoltageOS kernel with Docker cgroup support + NetHunter USB features
-# + KernelSU-Next for Xiaomi Mi 9T Pro (raphael)
+# Build the VoltageOS kernel for Xiaomi Mi 9T Pro (raphael) with Docker cgroup support and NetHunter USB features.
+# No root in the kernel: Magisk patches the output boot image (docs/02).
 #
 # Usage: cd kernel-build && bash build.sh
 # Output: ../boot-docker.img and ../modules/<kernel version>/ (kernel modules)
@@ -11,13 +11,14 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
 # --- Pinned versions (change these to update) ---
-CLANG_URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-r547379.tar.gz"
+# The compiler of the VoltageOS kernel itself (Clang 22.0.2). The AOSP main branch has only up to r547379.
+CLANG_VERSION="r596125"
+CLANG_URL="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/tags/android-security-17.0.0_r3/clang-$CLANG_VERSION.tar.gz"
 KERNEL_REPO="https://github.com/VoltageOS-Devices/kernel_xiaomi_raphael.git"
 KERNEL_BRANCH="17"
 KERNEL_COMMIT="794b2ef62510f29174be9cd0d682ef5e305e2b81"
 MKBOOTIMG_REPO="https://android.googlesource.com/platform/system/tools/mkbootimg"
 MKBOOTIMG_COMMIT="d2bb0af5ba6d3198a3e99529c97eda1be0b5a093"
-KSU_VERSION="v1.1.1"
 # Copy these from the stock boot.img of the ROM (boot_unpacked/boot_params.txt).
 # A lower value than the stock boot image makes Android's keystore refuse the boot as a downgrade.
 OS_VERSION="17.0.0"
@@ -29,7 +30,6 @@ MKBOOTIMG_DIR="$SCRIPT_DIR/mkbootimg"
 BOOT_UNPACKED="$SCRIPT_DIR/boot_unpacked"
 DOCKER_CONFIG="$SCRIPT_DIR/docker.config"
 NETHUNTER_CONFIG="$SCRIPT_DIR/nethunter.config"
-PATCHES_DIR="$SCRIPT_DIR/patches"
 OUTPUT="$REPO_ROOT/boot-docker.img"
 MODULES_OUTPUT="$REPO_ROOT/modules"
 
@@ -51,18 +51,20 @@ fi
 
 # --- Toolchain ---
 
-if [ ! -d "$TOOLCHAIN_DIR/clang/bin" ]; then
-    echo "=== Downloading Android Clang r547379 (~1 GB) ==="
-    mkdir -p "$TOOLCHAIN_DIR"
-    curl -L "$CLANG_URL" -o "$TOOLCHAIN_DIR/clang.tar.gz"
-    mkdir -p "$TOOLCHAIN_DIR/clang"
-    tar -xzf "$TOOLCHAIN_DIR/clang.tar.gz" -C "$TOOLCHAIN_DIR/clang"
-    rm "$TOOLCHAIN_DIR/clang.tar.gz"
+CLANG_DIR="$TOOLCHAIN_DIR/clang-$CLANG_VERSION"
+if [ ! -d "$CLANG_DIR/bin" ]; then
+    echo "=== Downloading Android Clang $CLANG_VERSION (~1 GB) ==="
+    # Unpack into a .part directory first, so a broken download is never taken for a toolchain
+    rm -rf "$CLANG_DIR.part"
+    mkdir -p "$CLANG_DIR.part"
+    curl -fsSL "$CLANG_URL" | tar -xz -C "$CLANG_DIR.part"
+    mv "$CLANG_DIR.part" "$CLANG_DIR"
 else
-    echo "=== Toolchain already present ==="
+    echo "=== Toolchain Clang $CLANG_VERSION already present ==="
 fi
 
-export PATH="$TOOLCHAIN_DIR/clang/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:$PATH"
+export PATH="$CLANG_DIR/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin:$PATH"
+clang --version | head -1
 
 # --- Kernel source ---
 
@@ -84,54 +86,43 @@ else
         echo "  Move or remove it, then run this script again."
         exit 1
     fi
+    # The build uses the clean VoltageOS source: no patches, no root code
+    if [ -n "$(git -C "$KERNEL_DIR" status --porcelain --untracked-files=no)" ]; then
+        echo "ERROR: $KERNEL_DIR has local changes. Reset it with: git -C $KERNEL_DIR checkout -- ."
+        exit 1
+    fi
     echo "=== Kernel source already present ==="
 fi
-
-# --- KernelSU-Next ---
-
-if [ ! -d "$KERNEL_DIR/drivers/kernelsu" ]; then
-    echo "=== Integrating KernelSU-Next $KSU_VERSION ==="
-    cd "$KERNEL_DIR"
-    curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/$KSU_VERSION/kernel/setup.sh" | bash -s "$KSU_VERSION"
-
-    # Disable KSU_UMOUNT — path_umount not available on kernel < 5.9
-    sed -i 's/^ccflags-y += -DKSU_UMOUNT/# ccflags-y += -DKSU_UMOUNT  # path_umount not available on kernel < 5.9/' \
-        "$KERNEL_DIR/drivers/kernelsu/Makefile"
-else
-    echo "=== KernelSU-Next already integrated ==="
-fi
-
-# --- Local patches ---
-# KernelSU-Next needs backports that a 4.14 kernel does not have (path_umount, seccomp filter_count)
-
-cd "$KERNEL_DIR"
-for patch in "$PATCHES_DIR"/*.patch; do
-    if git apply --reverse --check "$patch" 2>/dev/null; then
-        echo "=== Already applied: $(basename "$patch") ==="
-    else
-        echo "=== Applying $(basename "$patch") ==="
-        git apply "$patch"
-    fi
-done
 
 # --- Configure ---
 
 echo "=== Configuring kernel ==="
 cd "$KERNEL_DIR"
 
+# Objects of two compilers must not mix: a new compiler means a clean build.
+# The module signing key stays, so modules of earlier builds (for example in the NetHunter zip) still load.
+STAMP="out/.clang-version"
+if [ -d out ] && [ "$(cat "$STAMP" 2>/dev/null)" != "$CLANG_VERSION" ]; then
+    echo "=== Compiler changed to Clang $CLANG_VERSION: clean build, the module signing key stays ==="
+    KEEP=$(mktemp -d -p "$SCRIPT_DIR")
+    # x509.genkey too: without it, make writes a new one and then generates a new key
+    cp -p out/certs/signing_key.pem out/certs/signing_key.x509 out/certs/x509.genkey "$KEEP"/ 2>/dev/null || true
+    rm -rf out
+    mkdir -p out/certs
+    cp -p "$KEEP"/* out/certs/ 2>/dev/null || true
+    rm -rf "$KEEP"
+fi
+
 make O=out ARCH=arm64 raphael_defconfig
 
 # Merge Docker and NetHunter config fragments
 ARCH=arm64 scripts/kconfig/merge_config.sh -m -O out out/.config "$DOCKER_CONFIG" "$NETHUNTER_CONFIG"
 
-# Enable KernelSU kprobes hook
-scripts/config --file out/.config --enable KPROBES --enable HAVE_KPROBES --enable KSU
-
 make O=out ARCH=arm64 olddefconfig
 
 # Verify critical flags
 echo "=== Verifying config ==="
-grep -E "CONFIG_CGROUP_DEVICE|CONFIG_CGROUP_PIDS|CONFIG_KSU" out/.config
+grep -E "CONFIG_CGROUP_DEVICE|CONFIG_CGROUP_PIDS" out/.config
 # olddefconfig silently drops an option when one of its dependencies is off
 MISSING=$(grep -h '^CONFIG_' "$DOCKER_CONFIG" "$NETHUNTER_CONFIG" | grep -vxF -f out/.config || true)
 if [ -n "$MISSING" ]; then
@@ -146,16 +137,23 @@ make -j"$(nproc)" O=out ARCH=arm64 LLVM=1 LLVM_IAS=1 \
     CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_COMPAT=arm-linux-gnueabi- \
     Image.gz
 
-# Build DTB separately (dtbo fails due to DTC version mismatch)
-make -j"$(nproc)" O=out ARCH=arm64 LLVM=1 LLVM_IAS=1 \
+# Device tree: only sm8150-v2.dtb. The "dtbs" target also builds dtbo overlays, which this dtc cannot build.
+# "-H epapr" writes only "phandle" properties, like the VoltageOS build. With the default of dtc 1.4.4,
+# nodes also get "linux,phandle". The bootloader renumbers "phandle" when it applies the dtbo, the
+# kernel reads "linux,phandle", and NFC and a camera fail with "invalid phandle".
+DTB=out/arch/arm64/boot/dts/qcom/sm8150-v2.dtb
+make O=out ARCH=arm64 LLVM=1 LLVM_IAS=1 \
     CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_COMPAT=arm-linux-gnueabi- \
-    dtbs 2>/dev/null || true
+    'DTC_FLAGS_sm8150-v2=-H epapr' qcom/sm8150-v2.dtb
+if grep -qa 'linux,phandle' "$DTB"; then
+    echo "ERROR: $DTB has linux,phandle properties"
+    exit 1
+fi
 
 # Concatenate kernel + device tree
-cat out/arch/arm64/boot/Image.gz \
-    out/arch/arm64/boot/dts/qcom/sm8150-v2.dtb \
-    > out/arch/arm64/boot/Image.gz-dtb
+cat out/arch/arm64/boot/Image.gz "$DTB" > out/arch/arm64/boot/Image.gz-dtb
 
+echo "$CLANG_VERSION" > "$STAMP"
 echo "=== Kernel built: out/arch/arm64/boot/Image.gz-dtb ==="
 
 # Kernel modules (mac80211_hwsim, ath9k_htc and its helpers). modules_install strips and signs them:

@@ -21,9 +21,13 @@ bash build.sh
 
 Output: `boot-docker.img` and `modules/<kernel version>/` (kernel modules) in the repo root. Next step: [Flash ROM + Kernel](02-flash-rom-kernel-root.md).
 
-The script downloads [Android Clang r547379](https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main/clang-r547379) (~1 GB), clones the [VoltageOS kernel](https://github.com/VoltageOS-Devices/kernel_xiaomi_raphael), integrates [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) v1.1.1, applies the patches in [`patches/`](../kernel-build/patches), applies the Docker and NetHunter config fragments, builds the kernel and the modules, and packs the boot image. Takes ~30 min and ~10 GB disk. Read [`build.sh`](../kernel-build/build.sh) for details.
+The script downloads [Android Clang r596125](https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/tags/android-security-17.0.0_r3/clang-r596125) (Clang 22.0.2, ~1 GB), clones the [VoltageOS kernel](https://github.com/VoltageOS-Devices/kernel_xiaomi_raphael), applies the Docker and NetHunter config fragments, builds the kernel, the device tree and the modules, and packs the boot image. Takes ~30 min and ~10 GB disk. Read [`build.sh`](../kernel-build/build.sh) for details.
 
-`patches/0001-kernelsu-next-non-gki-backports.patch` adds what KernelSU-Next needs from newer kernels: `path_umount()` and the `filter_count` field in `struct seccomp`.
+The kernel source stays clean: no patches and no root code. The build stops if `kernel/` has local changes. Root comes from Magisk, which patches `boot-docker.img` ([step 2](02-flash-rom-kernel-root.md#5-flash-the-custom-kernel-with-magisk-root)).
+
+The device tree is built with `dtc -H epapr`: only `phandle` properties, like the VoltageOS build. By default, the `dtc` 1.4.4 in the kernel source also writes `linux,phandle`. The bootloader changes the `phandle` numbers when it applies the phone's `dtbo`, but the kernel reads the old `linux,phandle` numbers. Then the NFC driver and a camera fail with `invalid phandle`. With `-H epapr`, the device tree is byte-identical to the one in the VoltageOS `boot.img`. The build stops if `linux,phandle` comes back.
+
+The compiler is the one of the VoltageOS kernel itself: the stock kernel's `/proc/version` shows `Clang version 22.0.2` (r596125). The AOSP `main` branch has only up to r547379. When `CLANG_VERSION` in `build.sh` changes, the script deletes `kernel/out` and keeps only the module signing key (`out/certs/signing_key.pem`, `signing_key.x509`, `x509.genkey`). Modules of earlier builds, for example in the NetHunter zip, then still load.
 
 ## NetHunter features
 
@@ -67,8 +71,7 @@ The kernel accepts only modules signed by the same build. Copy the modules again
 | Component | Source | License |
 |-----------|--------|---------|
 | Linux kernel (msm-4.14) | [VoltageOS-Devices/kernel_xiaomi_raphael](https://github.com/VoltageOS-Devices/kernel_xiaomi_raphael) branch `17` @ [`794b2ef`](https://github.com/VoltageOS-Devices/kernel_xiaomi_raphael/commit/794b2ef62510f29174be9cd0d682ef5e305e2b81) | [GPLv2](https://www.gnu.org/licenses/old-licenses/gpl-2.0.html) |
-| KernelSU-Next v1.1.1 | [KernelSU-Next/KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) @ [`v1.1.1`](https://github.com/KernelSU-Next/KernelSU-Next/releases/tag/v1.1.1) (`0d6bdc6`) | [GPLv2](https://github.com/KernelSU-Next/KernelSU-Next/blob/next/LICENSE) |
-| Android Clang r547379 | [AOSP prebuilts](https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main/clang-r547379) | [Apache 2.0](https://source.android.com/docs/setup/about/licenses) |
+| Android Clang r596125 (22.0.2) | [AOSP prebuilts](https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/tags/android-security-17.0.0_r3/clang-r596125), tag `android-security-17.0.0_r3` | [Apache 2.0](https://source.android.com/docs/setup/about/licenses) |
 | mkbootimg | [AOSP system/tools/mkbootimg](https://android.googlesource.com/platform/system/tools/mkbootimg) | [Apache 2.0](https://source.android.com/docs/setup/about/licenses) |
 | VoltageOS ramdisk | Extracted from [VoltageOS](https://voltage-os.com/) 6.2 boot.img | [Apache 2.0](https://source.android.com/docs/setup/about/licenses) |
 

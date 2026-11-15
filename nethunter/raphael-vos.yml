@@ -1,9 +1,9 @@
 - raphael:
     model  : Xiaomi Mi 9T Pro / Redmi K20 Pro
     kernels:
-      - id          : raphael-vos-ksu
-        description : Xiaomi Mi 9T Pro / Redmi K20 Pro for VoltageOS w/ KernelSU-Next
-        kernelstring: NetHunter kernel for Xiaomi Mi 9T Pro (VoltageOS 6.2, KernelSU-Next)
+      - id          : raphael-vos
+        description : Xiaomi Mi 9T Pro / Redmi K20 Pro for VoltageOS, root with Magisk
+        kernelstring: NetHunter kernel for Xiaomi Mi 9T Pro (VoltageOS 6.2)
         arch        : arm64
         block       : /dev/block/bootdevice/by-name/boot
         devicenames : raphael,raphaelin
@@ -15,4 +15,4 @@
             description: VoltageOS 6.2 (Android 17)
             author     : SoraDimichi
             source     : 'git clone https://github.com/VoltageOS-Devices/kernel_xiaomi_raphael -b 17 (built with docker-on-android kernel-build/build.sh)'
-            features   : [HID-4, BT_RFCOMM, ATH9K_HTC, RT2800USB, MAC80211_HWSIM, USB_ACM, FTDI, CH341, CP210X, BTUSB, Docker, KernelSU]
+            features   : [HID-4, BT_RFCOMM, ATH9K_HTC, RT2800USB, MAC80211_HWSIM, USB_ACM, FTDI, CH341, CP210X, BTUSB, Docker]

@@ -19,15 +19,15 @@ cd kernel-build
 bash build.sh
 ```
 
-Output: `boot-docker.img` and `modules/<kernel version>/` (kernel modules) in the repo root. Next step: [Flash ROM + Kernel](2-FLASH.md).
+Output: `boot-docker.img` and `modules/<kernel version>/` (kernel modules) in the repo root. Next step: [Flash ROM + Kernel](02-flash-rom-kernel-root.md).
 
-The script downloads [Android Clang r547379](https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main/clang-r547379) (~1 GB), clones the [VoltageOS kernel](https://github.com/VoltageOS-Devices/kernel_xiaomi_raphael), integrates [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) v1.1.1, applies the patches in [`patches/`](kernel-build/patches), applies the Docker and NetHunter config fragments, builds the kernel and the modules, and packs the boot image. Takes ~30 min and ~10 GB disk. Read [`build.sh`](kernel-build/build.sh) for details.
+The script downloads [Android Clang r547379](https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+/refs/heads/main/clang-r547379) (~1 GB), clones the [VoltageOS kernel](https://github.com/VoltageOS-Devices/kernel_xiaomi_raphael), integrates [KernelSU-Next](https://github.com/KernelSU-Next/KernelSU-Next) v1.1.1, applies the patches in [`patches/`](../kernel-build/patches), applies the Docker and NetHunter config fragments, builds the kernel and the modules, and packs the boot image. Takes ~30 min and ~10 GB disk. Read [`build.sh`](../kernel-build/build.sh) for details.
 
 `patches/0001-kernelsu-next-non-gki-backports.patch` adds what KernelSU-Next needs from newer kernels: `path_umount()` and the `filter_count` field in `struct seccomp`.
 
 ## NetHunter features
 
-[`nethunter.config`](kernel-build/nethunter.config) adds these kernel options for [Kali NetHunter](https://www.kali.org/docs/nethunter/):
+[`nethunter.config`](../kernel-build/nethunter.config) adds these kernel options for [Kali NetHunter](https://www.kali.org/docs/nethunter/):
 
 | Options | Use |
 |---------|-----|

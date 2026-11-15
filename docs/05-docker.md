@@ -1,28 +1,30 @@
-# 4. Docker Setup
+# 5. Docker
 
 Docker runs inside the Kali chroot of [Kali NetHunter](https://www.kali.org/docs/nethunter/). NetHunter installs a full Kali at `/data/local/nhsystem/kalifs`. Kali is based on Debian, so `apt install docker.io` works there. No second Linux system is needed.
 
 ## Requirements
 
-- The custom kernel from [1. Build Kernel](1-BUILD.md), with root from KernelSU-Next.
-- Kali NetHunter with its Kali chroot (Lite or Full edition).
-- ADB on the PC, or another root shell on the phone.
+- The custom kernel from [step 1](01-build-kernel.md), with root from KernelSU-Next ([step 2](02-flash-rom-kernel-root.md)).
+- Kali NetHunter with its Kali chroot ([step 3](03-nethunter.md)). The Lite edition works too.
+- `$ADB` on the PC ([step 2](02-flash-rom-kernel-root.md#requirements)), or another root shell on the phone.
 
 ## Copy the scripts to the phone
 
+From the repo root:
+
 ```bash
-adb push setup.sh start-docker.sh stop-docker.sh pause-docker.sh resume-docker.sh uninstall.sh /data/local/tmp/
-adb shell su -c 'mkdir -p /data/local/docker-on-android && cd /data/local/tmp && mv setup.sh start-docker.sh stop-docker.sh pause-docker.sh resume-docker.sh uninstall.sh /data/local/docker-on-android/'
+$ADB push docker/setup.sh docker/start-docker.sh docker/stop-docker.sh docker/pause-docker.sh docker/resume-docker.sh docker/uninstall.sh /data/local/tmp/
+$ADB shell su -c 'mkdir -p /data/local/docker-on-android && cd /data/local/tmp && mv setup.sh start-docker.sh stop-docker.sh pause-docker.sh resume-docker.sh uninstall.sh /data/local/docker-on-android/'
 ```
 
 ## Quick start
 
 ```bash
-adb shell su -c 'sh /data/local/docker-on-android/setup.sh'          # once: installs docker.io and docker-cli in Kali
-adb shell su -c 'sh /data/local/docker-on-android/start-docker.sh'   # after every reboot
+$ADB shell su -c 'sh /data/local/docker-on-android/setup.sh'          # once: installs docker.io and docker-cli in Kali
+$ADB shell su -c 'sh /data/local/docker-on-android/start-docker.sh'   # after every reboot
 ```
 
-Then use `docker` in the Kali chroot (for example the NetHunter terminal, or SSH into Kali):
+Then use `docker` in the Kali chroot, for example over [SSH into Kali](04-ssh.md) (`ssh kali`) or in the NetHunter terminal:
 
 ```bash
 docker run --rm hello-world
@@ -52,7 +54,7 @@ Open it from the PC: `http://<phone-ip>:8088`.
 | `resume-docker.sh` | Start `dockerd` and the remembered containers | After a pause |
 | `uninstall.sh` | Remove Docker from Kali. Kali stays | Remove Docker |
 
-Run each script as root: `adb shell su -c 'sh /data/local/docker-on-android/<script>'`.
+Run each script as root: `$ADB shell su -c 'sh /data/local/docker-on-android/<script>'`. The scripts are in [`docker/`](../docker).
 
 ## Troubleshooting
 

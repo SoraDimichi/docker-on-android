@@ -1,0 +1,16 @@
+# Add to ~/.ssh/config on the PC. The key ~/.ssh/id_mi9tpro is NOT in this repo.
+# The phone has the static address 192.168.1.229 (see docs/04-ssh.md).
+
+Host kali
+  # Kali's own sshd: a root process started at boot by KernelSU (/data/adb/service.d/kali-sshd.sh)
+  Port 22
+  User root
+
+Host termux
+  # Optional: the sshd of the Termux app
+  Port 8022
+
+Host kali termux
+  HostName 192.168.1.229
+  IdentityFile ~/.ssh/id_mi9tpro
+  IdentitiesOnly yes

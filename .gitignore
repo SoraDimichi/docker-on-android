@@ -1,8 +1,30 @@
+# Kernel build (step 1)
 kernel/
 toolchain/
 kernel-build/kernel/
 kernel-build/toolchain/
 kernel-build/mkbootimg/
+kernel-build/stock-*/
 boot-docker.img
 modules/
-kernel-build/stock-*/
+
+# NetHunter build (step 3)
+nethunter-build/
+
+# APKs (step 6): download-apks.sh saves them here. Git keeps only the empty folder.
+apks/*
+!apks/.gitkeep
+
+# Build outputs and binaries: never commit them
+*.zip
+*.zip.sha256
+*.tar.xz
+*.img
+*.ko
+*.apk
+Image
+Image.gz
+Image.gz-dtb
+
+# Python cache
+__pycache__/

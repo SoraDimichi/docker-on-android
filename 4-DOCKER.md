@@ -1,53 +1,66 @@
 # 4. Docker Setup
 
-## Copy Scripts to Phone
+Docker runs inside the Kali chroot of [Kali NetHunter](https://www.kali.org/docs/nethunter/). NetHunter installs a full Kali at `/data/local/nhsystem/kalifs`. Kali is based on Debian, so `apt install docker.io` works there. No second Linux system is needed.
 
-From your PC, copy the scripts to the phone via SSH:
+## Requirements
 
-```bash
-scp -P 8022 setup.sh start-docker.sh stop-docker.sh pause-docker.sh resume-docker.sh uninstall.sh <user>@<phone-ip>:~/
-```
+- The custom kernel from [1. Build Kernel](1-BUILD.md), with root from KernelSU-Next.
+- Kali NetHunter with its Kali chroot (Lite or Full edition).
+- ADB on the PC, or another root shell on the phone.
 
-## Quick Start
-
-Open Termux on the phone and run:
+## Copy the scripts to the phone
 
 ```bash
-su -c "PATH=$PREFIX/bin:\$PATH bash $HOME/setup.sh"        # one-time: creates image, installs Debian + Docker
-su -c "PATH=$PREFIX/bin:\$PATH bash $HOME/start-docker.sh"  # after every reboot
+adb push setup.sh start-docker.sh stop-docker.sh pause-docker.sh resume-docker.sh uninstall.sh /data/local/tmp/
+adb shell su -c 'mkdir -p /data/local/docker-on-android && cd /data/local/tmp && mv setup.sh start-docker.sh stop-docker.sh pause-docker.sh resume-docker.sh uninstall.sh /data/local/docker-on-android/'
 ```
 
-> `su` runs as root where `~` is `/`. Use `$HOME` (Termux home) and add `$PREFIX/bin` so root can find Termux tools.
-
-Enter chroot and run nginx:
+## Quick start
 
 ```bash
-su -c "chroot /data/local/dockerroot /usr/bin/env PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin bash"
-docker run -d --network=host nginx:alpine
+adb shell su -c 'sh /data/local/docker-on-android/setup.sh'          # once: installs docker.io and docker-cli in Kali
+adb shell su -c 'sh /data/local/docker-on-android/start-docker.sh'   # after every reboot
 ```
 
-Access from PC: `curl http://<phone-ip>:80`
+Then use `docker` in the Kali chroot (for example the NetHunter terminal, or SSH into Kali):
+
+```bash
+docker run --rm hello-world
+docker run -d -p 8088:80 nginx:alpine
+```
+
+Open it from the PC: `http://<phone-ip>:8088`.
+
+## How it works
+
+- `dockerd` runs in its own mount namespace (`unshare -m`). Android's `/data` mount is shared, and Docker's `pivot_root` fails under a shared mount. Inside the namespace the mounts are private. They never reach Android or the NetHunter app.
+- In that namespace, Kali is bind-mounted at `/data/local/dockerroot`. Outside the namespace this folder looks empty. Inside, it IS Kali. Never delete it while Docker runs.
+- The `cpuset` and `memory` cgroups are skipped. Android mounts cpuset with `noprefix`, and the kernel keeps that for every later mount. The kernel refuses a second memory mount. Docker works without both.
+- Two `ip rule` entries keep `172.17.0.0/16` on `docker0`. Without them, Android's policy routing sends container traffic out over Wi-Fi.
+- `--iptables=false`: Docker does not change Android's iptables. Bridge containers get no NAT, so they have no internet access. Published ports (`-p`) work, because `docker-proxy` is a local process.
+- Two `FORWARD DROP` rules keep other devices on the LAN away from the container addresses.
+- `--storage-driver=vfs`: overlayfs does not work here.
 
 ## Scripts
 
 | Script | What it does | When to use |
-|--------|-------------|-------------|
-| `setup.sh` | Create ext4 image, install Debian + Docker | First time only |
-| `start-docker.sh` | Mount everything + start dockerd | After reboot |
-| `stop-docker.sh` | Graceful shutdown + unmount + detach loop | Full teardown |
-| `pause-docker.sh` | Stop all containers + stop dockerd (mounts stay) | Save battery, free resources |
-| `resume-docker.sh` | Start dockerd + restart all containers | Wake up where you left off |
-| `uninstall.sh` | Stop, unmount, delete image + chroot | Remove everything |
+|--------|--------------|-------------|
+| `setup.sh` | Install `docker.io` and `docker-cli` in Kali | First time only |
+| `start-docker.sh` | Start `dockerd` in its own mount namespace | After every reboot |
+| `stop-docker.sh` | Stop all containers and `dockerd` | Full stop |
+| `pause-docker.sh` | Remember the running containers, then stop | Save battery |
+| `resume-docker.sh` | Start `dockerd` and the remembered containers | After a pause |
+| `uninstall.sh` | Remove Docker from Kali. Kali stays | Remove Docker |
 
-All scripts: `su -c "PATH=$PREFIX/bin:\$PATH bash $HOME/script.sh"`
+Run each script as root: `adb shell su -c 'sh /data/local/docker-on-android/<script>'`.
 
 ## Troubleshooting
 
-| Error | Fix |
-|-------|-----|
-| `Devices cgroup isn't mounted` | Need custom kernel with `CONFIG_CGROUP_DEVICE=y`, or cgroups not mounted |
-| `remount /, flags: 0x84000` | Must use ext4 loop device, not /data directly |
-| `cpuset/docker/cpuset.cpus: no such file` | Don't mount cpuset — Android's `noprefix` is cached by kernel, Docker works without it |
-| `-p` port mapping not working | Use `--network=host` instead |
-| Docker DNS/TLS failures | `GODEBUG=netdns=cgo` — Go's pure DNS resolver fails on Android |
-| Image pulls very slow | `vfs` storage driver copies every layer fully — no fix on Android |
+| Problem | Fix |
+|---------|-----|
+| `Devices cgroup isn't mounted` | Use the custom kernel (`CONFIG_CGROUP_DEVICE=y`) |
+| A container has no internet | Use `--network=host`. Bridge containers have no NAT |
+| A published port does not answer | The process in the container must run as root or with a low UID. Android drops incoming connections to sockets of UID 10000 or higher. Try `--user 0` |
+| `sudo` or other setuid programs fail in a container | `/data` is mounted `nosuid` |
+| Docker DNS or TLS failures | `start-docker.sh` sets `GODEBUG=netdns=cgo`. Go's own DNS resolver fails on Android |
+| Image pulls are slow | `vfs` copies every layer in full. There is no fix on Android |

@@ -1,26 +1,11 @@
-#!/data/data/com.termux/files/usr/bin/bash
-# Usage: su -c bash ~/resume-docker.sh
+#!/system/bin/sh
+# Start Docker, then start the containers that were running at pause
+# Usage (as root): sh /data/local/docker-on-android/resume-docker.sh   (from the PC: adb shell su -c 'sh /data/local/docker-on-android/resume-docker.sh')
+KALI=/data/local/nhsystem/kalifs
+run() { root=$1; shift; chroot "$root" /usr/bin/env -i PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin HOME=/root TERM=dumb "$@"; }
 
-DEBIAN=/data/local/dockerroot
-
-run_chroot() {
-    chroot $DEBIAN /usr/bin/env PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin "$@"
-}
-
-run_chroot bash -c "GODEBUG=netdns=cgo dockerd --iptables=false --storage-driver=vfs &>/tmp/dockerd.log &"
-
-echo -n "Waiting for dockerd"
-for i in $(seq 1 30); do
-    if run_chroot docker info &>/dev/null; then
-        echo " ready (${i}s)"
-        break
-    fi
-    echo -n "."
-    sleep 1
-done
-
-echo "Starting containers..."
-run_chroot bash -c 'docker start $(cat /tmp/paused-containers) 2>/dev/null' 2>/dev/null
-run_chroot rm -f /tmp/paused-containers
-
+sh "$(dirname "$0")/start-docker.sh" || exit 1
+ids=$(cat $KALI/tmp/paused-containers 2>/dev/null)
+[ -n "$ids" ] && run $KALI docker start $ids
+rm -f $KALI/tmp/paused-containers
 echo "Resumed."

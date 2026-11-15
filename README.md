@@ -6,7 +6,7 @@
 
 Running Docker on a rooted Android phone using a custom kernel + Debian chroot.
 
-> Tested on Xiaomi Mi 9T Pro (Redmi K20 Pro / `raphael`), [VoltageOS](https://voltage-os.com/) 5.6 (Android 16), custom kernel with Docker cgroup support. The build now targets VoltageOS 6.2 (Android 17). On 6.2 the kernel boots, and the Docker cgroups and the NetHunter drivers are present. Docker and KernelSU-Next are not tested on 6.2 yet.
+> Tested on Xiaomi Mi 9T Pro (Redmi K20 Pro / `raphael`), [VoltageOS](https://voltage-os.com/) 5.6 (Android 16), custom kernel with Docker cgroup support. The build now targets VoltageOS 6.2 (Android 17). On 6.2 the kernel boots, and the Docker cgroups and the NetHunter drivers are present.
 
 ## Guides
 

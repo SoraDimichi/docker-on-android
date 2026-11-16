@@ -48,11 +48,25 @@ In NetHunter 2026.3, this screen can crash the app (`ConcurrentModificationExcep
 $ADB shell su -c 'ps -A | grep sshd'   # sshd [listener] ...
 ```
 
-If the app crashes before it saves the checkbox, put the command into the list that NetHunter runs after each boot. The app writes this list again from its own database when you change the services, so tick the box in the app later when it works.
+If the app crashes before it saves the checkbox, or if SSH does not start after a reboot and the first unlock, set the start flag of SSH (`RunOnChrootStart`) in the app database and write the list that NetHunter runs after each boot. Do both: when you change the services, the app writes the list again from its database. Once, after a reboot, the flag was back at 0 and SSH did not start.
 
 ```bash
-$ADB shell su -c "printf 'service ssh start\n' > /data/data/com.offsec.nethunter/scripts/kaliservices && chmod 755 /data/data/com.offsec.nethunter/scripts/kaliservices"
+$ADB shell su -c sh <<'EOF'
+K=/data/local/nhsystem/kalifs; A=/data/data/com.offsec.nethunter
+am force-stop com.offsec.nethunter
+cp $A/databases/KaliServicesFragment $K/tmp/ks.db
+chroot $K /usr/bin/env PATH=/usr/bin:/bin python3 -c "
+import sqlite3; c = sqlite3.connect('/tmp/ks.db')
+c.execute(\"update KaliServicesFragment set RunOnChrootStart='1' where ServiceName='SSH'\"); c.commit()
+print(list(c.execute(\"select ServiceName, RunOnChrootStart from KaliServicesFragment where ServiceName='SSH'\")))"
+cat $K/tmp/ks.db > $A/databases/KaliServicesFragment && rm $K/tmp/ks.db
+printf 'service ssh start\n' > $A/scripts/kaliservices && chmod 755 $A/scripts/kaliservices
+EOF
 ```
+
+- The output must be `[('SSH', 1)]`.
+- `cat … >` writes into the existing file, so the database keeps its owner and SELinux label.
+- Check the list: `$ADB shell su -c 'cat /data/data/com.offsec.nethunter/scripts/kaliservices'` prints `service ssh start`.
 
 ## Wake lock
 
